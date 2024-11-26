@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Country Clustering for Aid Allocation</title>
+</head>
+<body>
+    <h1>HELP International - Strategic Aid Allocation</h1>
+    
+    <h2>Option 1: Upload a CSV file</h2>
+    <p>Upload a CSV file containing socio-economic and health factors:</p>
+    <form action="/upload" method="POST" enctype="multipart/form-data">
+        <input type="file" name="data" required>
+        <button type="submit">Cluster Countries</button>
+    </form>
+
+    <hr>
+
+    <h2>Option 2: Enter Features Manually</h2>
+    <p>Provide the socio-economic and health features for a single country:</p>
+    <form action="/predict" method="POST">
+        <label for="country">Country:</label>
+        <input type="text" name="country" placeholder="Country Name" required><br>
+
+        <label for="child_mort">Child Mortality:</label>
+        <input type="number" step="any" name="child_mort" placeholder="Child Mortality" required><br>
+
+        <label for="exports">Exports (% of GDP):</label>
+        <input type="number" step="any" name="exports" placeholder="Exports" required><br>
+
+        <label for="health">Health (% of GDP):</label>
+        <input type="number" step="any" name="health" placeholder="Health" required><br>
+
+        <label for="imports">Imports (% of GDP):</label>
+        <input type="number" step="any" name="imports" placeholder="Imports" required><br>
+
+        <label for="income">Income (per capita):</label>
+        <input type="number" step="any" name="income" placeholder="Income" required><br>
+
+        <label for="inflation">Inflation (%):</label>
+        <input type="number" step="any" name="inflation" placeholder="Inflation" required><br>
+
+        <label for="life_expec">Life Expectancy:</label>
+        <input type="number" step="any" name="life_expec" placeholder="Life Expectancy" required><br>
+
+        <label for="total_fer">Total Fertility Rate:</label>
+        <input type="number" step="any" name="total_fer" placeholder="Total Fertility Rate" required><br>
+
+        <label for="gdpp">GDP per capita:</label>
+        <input type="number" step="any" name="gdpp" placeholder="GDP per capita" required><br><br>
+
+        <button type="submit">Get Class of the Country</button>
+    </form>
+
+    <hr>
+
+    {% if message %}
+        <p style="color: green;">{{ message }}</p>
+        <h3>Predicted Clusters:</h3>
+        <ul>
+            {% for result in results %}
+                <li>{{ result['Country'] }} belongs to {{ result['Cluster'] }}</li>
+            {% endfor %}
+        </ul>
+    {% endif %}
+
+    {% if error %}
+        <p style="color: red;">{{ error }}</p>
+    {% endif %}
+</body>
+</html>
