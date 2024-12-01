@@ -127,10 +127,55 @@ This analysis highlights which factors play the most critical role in clustering
 
 
 ## 8. Model Deployment
-- The final K-Means model was trained and deployed using:
-- Flask for API creation and HTML for Website.
-- Pickle to save the trained model.
-- Postman for testing the deployment.
+
+The machine learning model was successfully deployed as a web application to provide cluster predictions and identify key factors contributing to cluster assignments. Below are the steps undertaken for deployment:
+
+## Framework and Tools:
+* Flask
+* Pickle
+* HTML Templates
+
+## Functionality:
+* **Home Page:**
+  * Manual input or file upload
+* **Manual Input Prediction:**
+  * Feature engineering
+  * Data scaling
+  * Cluster prediction
+  * Top 3 influential features
+* **CSV File Upload:**
+  * Batch processing
+  * Cluster prediction
+  * Top factors for each country
+
+## Key Features:
+* Feature Engineering
+* Cluster Classification (3 classes):
+  * Very Poor Class
+  * Bourgeoisie Class
+  * Very Rich or one of the Top Class
+* Feature Importance Analysis
+
+## Deployment Workflow:
+1. **Input Handling:**
+   * Manual input
+   * File upload
+2. **Data Preprocessing:**
+   * Feature engineering
+   * Data scaling
+3. **Prediction and Output:**
+   * Cluster assignments
+   * Key influencing factors
+4. **Error Handling:**
+   * Clear error messages
+
+## Testing:
+* Postman API testing
+* Manual input and file upload testing
+
+The deployment ensures an intuitive and reliable platform for:
+* Country cluster prediction
+* Understanding socio-economic factors
 
 
 # Website Preview:
