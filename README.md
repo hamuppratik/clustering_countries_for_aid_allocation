@@ -180,4 +180,4 @@ The deployment ensures an intuitive and reliable platform for:
 
 # Website Preview:
 
-![alt text](<Front End SS upload root.png>)
+![alt text](<images/Front End SS upload root.png>)
