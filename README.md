@@ -91,6 +91,22 @@ Standard scaling was applied to normalize numerical features for better clusteri
 - Selected due to its simplicity, interpretability, and effectiveness.
 - Used all features with standard scaling for better cluster formation.
 
+**Feature Importance Calculation:**
+- The feature importance was determined by analyzing the distances between the data points and their respective cluster centroids:
+1. Calculated the Euclidean distances of data points to all cluster centroids.
+2. Identified the closest centroid for each data point.
+3. Measured the absolute differences between each feature's value and its corresponding centroid value.
+4. Ranked features based on these differences and selected the top 3 most important features that significantly influenced the clustering process.
+
+- Example:
+For a specific data point, the top 3 features contributing to its cluster assignment could include:
+
+- GDP per capita (gdpp)
+- Child mortality (child_mort)
+- Health spending (health_spending)
+
+This analysis highlights which factors play the most critical role in clustering, providing actionable insights for resource allocation.
+
 
 ## 7. Insights and Recommendations
 **Cluster Characteristics:**
