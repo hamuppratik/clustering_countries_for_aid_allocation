@@ -1,4 +1,5 @@
 from flask import Flask, request, render_template, jsonify
+import numpy as np
 import pandas as pd
 import pickle
 
@@ -20,10 +21,10 @@ def home():
     return render_template(Templte_path)
 
 # -------------------------------------------------------
-@app.route("/predict", methods=["POST"])
+@app.route("/predict", methods=["POST"]) 
 def predict_manual():
     try:
-        # Get data from frontend by request method as dict
+
         data = {
             "country": request.form["country"],
             "child_mort": float(request.form["child_mort"]),
@@ -37,9 +38,10 @@ def predict_manual():
             "gdpp": float(request.form["gdpp"]),
         }
 
-        # get data in DataFrame
+        # Get data in DataFrame
         df = pd.DataFrame([data])
         
+        # Feature engineering as before
         df["exports_per_capita"] = df["exports"]/100*df["gdpp"]
         df["imports_per_capita"] = df["imports"]/100*df["gdpp"]
         df["health_spending"] = df["health"]/100*df["gdpp"]
@@ -47,7 +49,6 @@ def predict_manual():
         df["low_Life_Expectancy"] = (df["life_expec"] < 73.1).astype(int)
         df["ratio_export_import"] = df["exports"]/df["imports"]
         df["inflation_adjusted_gdpp"] = df["gdpp"] / (1 + df["inflation"])
-
 
         num_cols = ['child_mort', 'exports', 'health', 'imports', 'income',
             'inflation', 'life_expec', 'total_fer', 'gdpp', 'exports_per_capita',
@@ -57,7 +58,7 @@ def predict_manual():
         
         X = scaler.transform(df[num_cols])  
 
-        # Predict cluster
+        # Prediction
         cluster = model.predict(X)[0]
 
         # Map cluster with string Top, Poor, Bourgeoisie
@@ -66,15 +67,36 @@ def predict_manual():
             1: "Bourgeoisie Class",
             2: "Very Rich or one of the Top Class",
         }
+
+        # calculating the distance from cluster centroids and find important features for class
+        cluster_centroids = model.cluster_centers_
+        distances = [np.linalg.norm(X - centroid) for centroid in cluster_centroids]
+        closest_centroid_index = np.argmin(distances)
+        closest_centroid = cluster_centroids[closest_centroid_index]
+
+        # Calculate the feature importance (you can use feature distance to centroid for simplicity)
+        feature_importance = {}
+        for i, feature in enumerate(num_cols):
+            feature_importance[feature] = abs(X[0][i] - closest_centroid[i])
+
+        # Sort features by importance
+        sorted_features = sorted(feature_importance.items(), key=lambda x: x[1], reverse=True)
+
+        # Select top 3 features (or more depending on your requirement)
+        important_features = sorted_features[:3]
+
+        # Prepare the result with important features
         result = {
             "Country": data["country"],
-            "Cluster": cluster_map.get(cluster, "Unknown Class")
+            "Cluster": cluster_map.get(cluster, "Unknown Class"),
+            "Key Factors": {feature: value for feature, value in important_features}
         }
 
         return render_template("index.html", message="Prediction successful", results=[result])
 
     except Exception as e:
         return render_template("index.html", error=f"An error occurred: {str(e)}")
+
 # -------------------------------------------------------
     
 @app.route('/upload', methods=['POST'])
@@ -82,12 +104,11 @@ def upload():
     try:
         # Step 1: Get the data using request
         uploaded_file = request.files['data']
-        
-        
-        # Step 2: Read into  DataFrame
+
+        # Step 2: Read into DataFrame
         df = pd.read_csv(uploaded_file)
-        
-        # Feature Engg    
+
+        # Feature Engineering    
         df["exports_per_capita"] = df["exports"]/100*df["gdpp"]
         df["imports_per_capita"] = df["imports"]/100*df["gdpp"]
         df["health_spending"] = df["health"]/100*df["gdpp"]
@@ -96,37 +117,62 @@ def upload():
         df["ratio_export_import"] = df["exports"]/df["imports"]
         df["inflation_adjusted_gdpp"] = df["gdpp"] / (1 + df["inflation"])
 
-
         num_cols = ['child_mort', 'exports', 'health', 'imports', 'income',
-            'inflation', 'life_expec', 'total_fer', 'gdpp', 'exports_per_capita',
-            'imports_per_capita', 'health_spending', 'High_Child_Mortality',
-            'low_Life_Expectancy', 'ratio_export_import',
-            'inflation_adjusted_gdpp']
-        
+                    'inflation', 'life_expec', 'total_fer', 'gdpp', 'exports_per_capita',
+                    'imports_per_capita', 'health_spending', 'High_Child_Mortality',
+                    'low_Life_Expectancy', 'ratio_export_import',
+                    'inflation_adjusted_gdpp']
+
+        # Transform features for prediction
         Y_test = scaler.transform(df[num_cols])
+        
+        # Predict clusters
         clusters = model.predict(Y_test)
         
+        # Get countries list
         countries = df["country"].to_list()
-        results = [
-            {
+
+        # Calculate the most influential features for each country
+        cluster_centroids = model.cluster_centers_
+        results = []
+        for country, cluster, features in zip(countries, clusters, Y_test):
+            distances = [np.linalg.norm(features - centroid) for centroid in cluster_centroids]
+            closest_centroid_index = np.argmin(distances)
+            closest_centroid = cluster_centroids[closest_centroid_index]
+            
+            # Calculate feature importance (distance to centroid)
+            feature_importance = {}
+            for i, feature in enumerate(num_cols):
+                feature_importance[feature] = abs(features[i] - closest_centroid[i])
+
+            # Sort features 
+            sorted_features = sorted(feature_importance.items(), key=lambda x: x[1], reverse=True)
+            
+            # top 3 influential features
+            important_features = sorted_features[:3]
+
+            # results 
+            result = {
                 "Country": country,
                 "Cluster": (
                     "Bourgeoisie Class" if int(cluster) == 1
                     else "Very Poor Class" if int(cluster) == 0 
                     else "Very Rich or one of the Top Class"
-                )
+                ),
+                "Key Factors": {feature: value for feature, value in important_features}
             }
-            for country, cluster in zip(countries, clusters)
-        ]
-        
+            results.append(result)
+
+        # Message
         message = "File processed successfully! Check the predicted clusters below."
 
-        # Step 7: Render with results
+        # Step 7: Render 
         return render_template(
             'index.html', 
             message=message,
             results=results
         )
+    
     except (KeyError, ValueError) as e:
         error_message = """
         Incorrect input format. Please follow the correct format below:
@@ -136,7 +182,6 @@ def upload():
         "country", "child_mort", "exports", "health", "imports", "income", "inflation", "life_expec", "total_fer", "gdpp".
         
         **For Manual Input**: 
-        
         "country":"United States",
         "child_mort":7.3,
         "exports":12.4,
@@ -153,6 +198,7 @@ def upload():
 
     except Exception as e:
         return render_template("index.html", error=f"An unexpected error occurred: {str(e)}")
+
 
         
         
