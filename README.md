@@ -8,6 +8,10 @@ HELP International, an NGO committed to alleviating poverty and providing humani
 **Medium:**
 https://medium.com/@hamupratikp/help-international-a-global-ngo-is-committed-to-maximizing-the-impact-of-its-aid-initiatives-0c2a7ba8a4b7
 
+**Loom:**
+
+https://www.loom.com/share/e64c183186a44f34b604f20dffb0e674?sid=85afeda5-bb60-428a-b3fb-711ff6f6606f
+
 
 ## Table of Contents
 1. Problem Statement
