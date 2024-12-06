@@ -5,7 +5,7 @@ HELP International, an NGO committed to alleviating poverty and providing humani
 
 **Tableau Dashboard Link:** https://public.tableau.com/views/ClusteringCuntriesforAidAllocation/Dashboard1?:language=en-US&publish=yes&:sid=&:redirect=auth&:display_count=n&:origin=viz_share_link
 
-**Medium**
+**Medium:**
 https://medium.com/@hamupratikp/help-international-a-global-ngo-is-committed-to-maximizing-the-impact-of-its-aid-initiatives-0c2a7ba8a4b7
 
 
